@@ -1,0 +1,62 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.40'
+}
+
+repositories {
+    jcenter()
+}
+
+tasks.withType(KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+//    implementation 'com.sparkjava:spark-core:2.8.0'
+//    implementation 'com.sparkjava:spark-kotlin:1.0.0-alpha'
+//    implementation 'io.quarkus'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.19.v20190610'
+
+//    implementation 'org.apache.logging.log4j:log4j-api:2.11.2'
+//    implementation 'org.apache.logging.log4j:log4j-core:2.11.2'
+//    implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.2'
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.2'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
+
+    testImplementation 'org.assertj:assertj-core:3.12.0'
+}
+
+
+task fatJar(type: Jar) {
+//    baseName = "${project.name}-fat"
+
+    manifest {
+//        attributes["Implementation-Title"] = "Gradle Jar File Example"
+//        attributes["Implementation-Version"] = version
+        attributes("Main-Class": "pack.MainKt")
+    }
+
+    from configurations.runtimeClasspath.collect {
+        if (it.isDirectory()) {
+            it
+        } else {
+            zipTree(it)
+        }
+    }
+
+//    logger.info("tttt")
+//    logger.info(tasks)
+    with tasks.jar
+}
+
+build.dependsOn fatJar
